@@ -1,4 +1,5 @@
-import P5 from 'p5';
+// @ts-ignore Import module
+import P5 from 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js';
 import { Renderer } from './renderer';
 import { Solver } from './solver';
 import { VerletObject } from './verlet_object';
@@ -41,15 +42,15 @@ const sketch = (p5: P5) => {
       solver.setSubStepsCount(subStepCountSlider.value() as unknown as number);
     };
     subStepCountSlider.mouseClicked(setSubStepsCount);
-    subStepCountSlider.position(120,30);
-    const objectCountSlider = p5.createSlider(1,2000,max_objects_count,1);
+    subStepCountSlider.position(120, 30);
+    const objectCountSlider = p5.createSlider(1, 2000, max_objects_count, 1);
     const setObjectCount = () => {
-      const currentCount=max_objects_count;
-      max_objects_count=objectCountSlider.value() as unknown as number;
+      const currentCount = max_objects_count;
+      max_objects_count = objectCountSlider.value() as unknown as number;
       if (max_objects_count < currentCount) solver.resetObjects();
-    }
+    };
     objectCountSlider.mouseClicked(setObjectCount);
-    objectCountSlider.position(120,10);
+    objectCountSlider.position(120, 10);
     p5.createCanvas(window_width, window_height);
     solver.setConstraint(
       new P5.Vector(window_width / 2, window_height / 2),

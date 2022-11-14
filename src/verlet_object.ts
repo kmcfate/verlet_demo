@@ -1,4 +1,5 @@
-import P5 from 'p5';
+// @ts-ignore Import module
+import P5 from 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js';
 
 export class VerletObject {
   position: P5.Vector;

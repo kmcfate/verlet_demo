@@ -1,4 +1,5 @@
-import P5 from 'p5';
+// @ts-ignore Import module
+import P5 from 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js';
 import { VerletObject } from './verlet_object';
 export class Solver {
   m_sub_steps: number;
@@ -26,7 +27,7 @@ export class Solver {
   }
 
   resetObjects() {
-    this.m_objects=[];
+    this.m_objects = [];
   }
 
   update() {
