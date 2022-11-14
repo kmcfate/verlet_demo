@@ -17,7 +17,7 @@ const sketch = (p5: P5) => {
   // Set simulation attributes
   const object_spawn_delay = 25;
   const object_spawn_speed = 1200.0;
-  const object_spawn_position = new P5.Vector(500, 900);
+  const object_spawn_position = new P5.Vector(500, 500);
   const object_min_radius = 5.0;
   const object_max_radius = 50.0;
   const max_objects_count = 200;

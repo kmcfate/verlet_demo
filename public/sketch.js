@@ -181,7 +181,7 @@ var sketch = function (p5) {
     // Set simulation attributes
     var object_spawn_delay = 25;
     var object_spawn_speed = 1200.0;
-    var object_spawn_position = new P5.Vector(500, 900);
+    var object_spawn_position = new P5.Vector(500, 500);
     var object_min_radius = 5.0;
     var object_max_radius = 50.0;
     var max_objects_count = 200;
