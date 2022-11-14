@@ -1,8 +1,5 @@
 import P5 from 'p5';
 
-let bounce = 0.999999;
-let gravity = new P5.Vector(0, 9.81);
-
 export class VerletObject {
   position: P5.Vector;
   position_last: P5.Vector;
@@ -24,26 +21,29 @@ export class VerletObject {
 
   update(dt: number) {
     const displacement = P5.Vector.sub(this.position, this.position_last);
-    this.position_last = this.position;
+    this.position_last = new P5.Vector(this.position.x, this.position.y);
     const acceleration = this.acceleration;
-    acceleration.mult(dt*dt);
-    this.position.add(P5.Vector.add(displacement,acceleration)); // Type problem on mult
+    acceleration.mult(dt * dt);
+    this.position.add(P5.Vector.add(displacement, acceleration)); // Type problem on mult
     this.acceleration = new P5.Vector(0, 0);
   }
 
-  accelerate(a:P5.Vector){
+  accelerate(a: P5.Vector) {
     this.acceleration.add(a);
   }
 
-  setVelocity(v:P5.Vector, dt: number) {
-    this.position_last = P5.Vector.sub(this.position,v.mult(dt));
+  setVelocity(v: P5.Vector, dt: number) {
+    this.position_last = P5.Vector.sub(
+      this.position,
+      P5.Vector.mult(v, dt) as unknown as P5.Vector
+    );
   }
 
-  addVelocity(v:P5.Vector, dt:number){
-    this.position_last.sub(P5.Vector.mult(v, dt) as unknown as P5.Vector);
-  }
+  // addVelocity(v:P5.Vector, dt:number){
+  //   this.position_last.sub(P5.Vector.mult(v, dt) as unknown as P5.Vector);
+  // }
 
-  getVelocity(dt:number){
-    return P5.Vector.sub(this.position, this.position_last).div(dt);
-  }
+  // getVelocity(dt:number){
+  //   return P5.Vector.sub(this.position, this.position_last).div(dt);
+  // }
 }

@@ -25,6 +25,10 @@ export class Solver {
     return object;
   }
 
+  resetObjects() {
+    this.m_objects=[];
+  }
+
   update() {
     this.m_time += this.m_frame_dt;
     const step_dt = this.getStepDt();
