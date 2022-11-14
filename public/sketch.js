@@ -28,10 +28,10 @@ var Renderer = /** @class */ (function () {
         var _this = this;
         var constraint = solver.getConstraint();
         this.p5.fill(0);
-        this.p5.circle(constraint.x, constraint.y, 1000);
+        this.p5.circle(constraint.x, constraint.y, constraint.z * 2);
         solver.getObjects().map((function (obj) {
             _this.p5.fill(obj.color.r, obj.color.g, obj.color.b);
-            _this.p5.circle(obj.position.x, obj.position.y, obj.radius);
+            _this.p5.circle(obj.position.x, obj.position.y, obj.radius * 2);
         }));
     };
     return Renderer;
@@ -49,7 +49,9 @@ var VerletObject = /** @class */ (function () {
     VerletObject.prototype.update = function (dt) {
         var displacement = P5.Vector.sub(this.position, this.position_last);
         this.position_last = this.position;
-        this.position.add(P5.Vector.add(displacement, P5.Vector.mult(this.acceleration, dt * dt))); // Type problem on mult
+        var acceleration = this.acceleration;
+        acceleration.mult(dt * dt);
+        this.position.add(P5.Vector.add(displacement, acceleration)); // Type problem on mult
         this.acceleration = new P5.Vector(0, 0);
     };
     VerletObject.prototype.accelerate = function (a) {
@@ -125,12 +127,14 @@ var Solver = /** @class */ (function () {
         this.m_objects.map(function (obj) { return obj.accelerate(_this.m_gravity); });
     };
     Solver.prototype.checkCollisions = function (dt) {
-        var _this = this;
         var response_coef = 0.75;
+        var objects_count = this.m_objects.length;
         // Iterate on all objects
-        this.m_objects.map(function (object_1) {
+        for (var i = 0; i < objects_count; ++i) {
+            var object_1 = this.m_objects[i];
             // Iterate on object involved in new collision pairs
-            _this.m_objects.map(function (object_2) {
+            for (var k = i + 1; k < objects_count; ++k) {
+                var object_2 = this.m_objects[k];
                 var v = P5.Vector.sub(object_1.position, object_2.position);
                 var dist2 = v.x * v.x + v.y * v.y;
                 var min_dist = object_1.radius + object_2.radius;
@@ -145,15 +149,15 @@ var Solver = /** @class */ (function () {
                     object_1.position.sub(P5.Vector.mult(n, mass_ratio_2 * delta));
                     object_2.position.add(P5.Vector.mult(n, mass_ratio_1 * delta));
                 }
-            });
-        });
+            }
+        }
     };
     Solver.prototype.applyConstraint = function () {
         var _this = this;
         this.m_objects.map(function (obj) {
             var v = P5.Vector.sub(_this.m_constraint_center, obj.position);
             var dist = Math.sqrt(v.x * v.x + v.y * v.y);
-            if (dist < _this.m_constraint_radius - obj.radius) {
+            if (dist > _this.m_constraint_radius - obj.radius) {
                 var n = P5.Vector.div(v, dist);
                 obj.position = P5.Vector.sub(_this.m_constraint_center, P5.Vector.mult(n, _this.m_constraint_radius - obj.radius));
             }
@@ -174,24 +178,24 @@ function getRainbow(t) {
 var sketch = function (p5) {
     var solver = new Solver();
     var renderer = new Renderer(p5);
-    // Solver configuration
-    solver.setConstraint(new P5.Vector(p5.width * 0.5, p5.height * 0.5), 450.0);
-    solver.setSubStepsCount(8);
-    solver.setSimulationUpdateRate(60);
     // Set simulation attributes
     var object_spawn_delay = 25;
     var object_spawn_speed = 1200.0;
-    var object_spawn_position = new P5.Vector(200.0, 200.0);
-    var object_min_radius = 1.0;
-    var object_max_radius = 20.0;
-    var max_objects_count = 1000;
+    var object_spawn_position = new P5.Vector(500, 900);
+    var object_min_radius = 5.0;
+    var object_max_radius = 50.0;
+    var max_objects_count = 200;
     var max_angle = 1.0;
     var last_object_time = 0;
     p5.setup = function () {
         p5.createCanvas(1000, 1000);
+        // Solver configuration
+        solver.setConstraint(new P5.Vector(p5.width / 2, p5.height / 2), 450.0);
+        solver.setSubStepsCount(10);
+        solver.setSimulationUpdateRate(60);
     };
     p5.draw = function () {
-        // p5.translate(p5.width/2, p5.height/2);
+        // p5.translate(p5.width / 2, p5.height / 2);
         var this_time = p5.millis();
         if (solver.getObjectsCount() < max_objects_count &&
             this_time - last_object_time >= object_spawn_delay) {
@@ -199,7 +203,7 @@ var sketch = function (p5) {
             var object = solver.addObject(object_spawn_position, p5.random(object_min_radius, object_max_radius));
             var t = solver.getTime();
             var angle = max_angle * Math.sin(t) + Math.PI * 0.5;
-            solver.setObjectVelocity(object, P5.Vector.mult(new P5.Vector(Math.cos(angle), Math.sin(angle)), object_spawn_speed));
+            solver.setObjectVelocity(object, new P5.Vector(Math.cos(angle), Math.sin(angle)).mult(object_spawn_speed));
             object.color = getRainbow(t);
         }
         solver.update();

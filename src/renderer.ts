@@ -10,12 +10,12 @@ export class Renderer{
     const constraint = solver.getConstraint();
 
     this.p5.fill(0);
-    this.p5.circle(constraint.x, constraint.y, 1000);
+    this.p5.circle(constraint.x, constraint.y, constraint.z*2 );
 
 
     solver.getObjects().map((obj=>{
     this.p5.fill(obj.color.r, obj.color.g, obj.color.b)
-      this.p5.circle(obj.position.x, obj.position.y, obj.radius)
+      this.p5.circle(obj.position.x, obj.position.y, obj.radius*2)
     }))
   }
 }

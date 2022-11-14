@@ -14,25 +14,24 @@ const sketch = (p5: P5) => {
   const solver = new Solver();
   const renderer = new Renderer(p5);
 
-  // Solver configuration
-  solver.setConstraint(new P5.Vector(p5.width * 0.5, p5.height * 0.5), 450.0);
-  solver.setSubStepsCount(8);
-  solver.setSimulationUpdateRate(60);
-
   // Set simulation attributes
   const object_spawn_delay = 25;
   const object_spawn_speed = 1200.0;
-  const object_spawn_position = new P5.Vector(200.0, 200.0);
-  const object_min_radius = 1.0;
-  const object_max_radius = 20.0;
-  const max_objects_count = 1000;
+  const object_spawn_position = new P5.Vector(500, 900);
+  const object_min_radius = 5.0;
+  const object_max_radius = 50.0;
+  const max_objects_count = 200;
   const max_angle = 1.0;
   let last_object_time = 0;
   p5.setup = () => {
     p5.createCanvas(1000, 1000);
+    // Solver configuration
+    solver.setConstraint(new P5.Vector(p5.width / 2, p5.height / 2), 450.0);
+    solver.setSubStepsCount(10);
+    solver.setSimulationUpdateRate(60);
   };
   p5.draw = () => {
-        // p5.translate(p5.width/2, p5.height/2);
+    // p5.translate(p5.width / 2, p5.height / 2);
     const this_time = p5.millis();
 
     if (
@@ -48,10 +47,7 @@ const sketch = (p5: P5) => {
       const angle = max_angle * Math.sin(t) + Math.PI * 0.5;
       solver.setObjectVelocity(
         object,
-        P5.Vector.mult(
-          new P5.Vector(Math.cos(angle), Math.sin(angle)),
-          object_spawn_speed
-        ) as unknown as P5.Vector
+        new P5.Vector(Math.cos(angle), Math.sin(angle)).mult(object_spawn_speed)
       );
       object.color = getRainbow(t);
     }

@@ -25,7 +25,9 @@ export class VerletObject {
   update(dt: number) {
     const displacement = P5.Vector.sub(this.position, this.position_last);
     this.position_last = this.position;
-    this.position.add(P5.Vector.add(displacement,P5.Vector.mult(this.acceleration,dt * dt) as unknown as P5.Vector)); // Type problem on mult
+    const acceleration = this.acceleration;
+    acceleration.mult(dt*dt);
+    this.position.add(P5.Vector.add(displacement,acceleration)); // Type problem on mult
     this.acceleration = new P5.Vector(0, 0);
   }
 
