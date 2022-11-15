@@ -1,13 +1,9 @@
-import P5 from 'p5';
-import { Solver } from './solver';
-
-export class Renderer {
-  p5: P5;
-  constructor(target: P5) {
+class Renderer {
+  constructor(target) {
     this.p5 = target;
   }
   
-  render(solver: Solver) {
+  render(solver) {
     const constraint = solver.getConstraint();
 
     this.p5.fill(0);
