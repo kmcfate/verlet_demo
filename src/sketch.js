@@ -41,7 +41,6 @@ const sketch = (canvas) => {
     const setObjectCount = () => {
       const currentCount=max_objects_count;
       max_objects_count=objectCountSlider.value();
-      if (max_objects_count < currentCount) solver.resetObjects();
     }
     objectCountSlider.mouseClicked(setObjectCount);
     objectCountSlider.position(120,10);
