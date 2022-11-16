@@ -20,7 +20,7 @@ const sketch = (canvas) => {
   const object_min_radius = 1.0;
   const object_max_radius = 20.0;
   const substep_count = 3;
-  let max_objects_count = 200;
+  let max_objects_count = 1;
   const max_angle = 1.0;
   let last_object_time = 0;
 
@@ -37,7 +37,7 @@ const sketch = (canvas) => {
     };
     subStepCountSlider.mouseClicked(setSubStepsCount);
     subStepCountSlider.position(120,30);
-    const objectCountSlider = canvas.createSlider(1,2000,max_objects_count,1);
+    const objectCountSlider = canvas.createSlider(1,20000,max_objects_count,1);
     const setObjectCount = () => {
       const currentCount=max_objects_count;
       max_objects_count=objectCountSlider.value();
@@ -72,7 +72,10 @@ const sketch = (canvas) => {
         object,
         new p5.Vector(Math.cos(angle), Math.sin(angle)).mult(object_spawn_speed)
       );
-      object.color = getRainbow(t);
+      const color = getRainbow(t);
+      object[7]=color.r;
+      object[8]=color.g;
+      object[9]=color.b;
     }
 
     solver.update();
