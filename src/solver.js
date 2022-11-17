@@ -1,3 +1,5 @@
+const gpu_depth=500;
+
 class Solver {
   constructor() {
     this.m_sub_steps = 1;
@@ -13,21 +15,20 @@ class Solver {
         function (objects, count, dt, center_x, center_y, radius) {
           let new_position = 0;
           // Verlet Integration X is %2=0 Y is %2=1
-          const position = this.thread.x % 2;
-          const position_last = (this.thread.x % 2) + 2;
-          const acceleration = (this.thread.x % 2) + 4;
+          const position_index = this.thread.x % 2;
+          const position_last_index = (this.thread.x % 2) + 2;
           const displacement =
-            objects[this.thread.y][position] -
-            objects[this.thread.y][position_last];
+            objects[this.thread.y][position_index] -
+            objects[this.thread.y][position_last_index];
           new_position =
-            objects[this.thread.y][position] +
+            objects[this.thread.y][position_index] +
             displacement +
-            1000 * position * dt * dt; // Hard coded acceleration for gravity
+            1000 * position_index * dt * dt; // Hard coded acceleration for gravity
 
           const v_x = center_x - objects[this.thread.y][0];
           const v_y = center_y - objects[this.thread.y][1];
           const dist = Math.sqrt(v_x * v_x + v_y * v_y);
-          if (dist > radius - objects[this.thread.y][6]) {
+          if (dist - 1 > radius - objects[this.thread.y][6]) {
             const n_x = v_x / dist;
             const n_y = v_y / dist;
             if (this.thread.x % 2 != 0) {
@@ -43,26 +44,10 @@ class Solver {
         },
         { dynamicArguments: true }
       )
-      .setOutput([2, 1000]);
-    // for (let i = 0; i < this.m_objects.length; i++) {
-    //   const v_x = this.m_constraint_center.x-this.m_objects[i][0];
-    //   const v_y = this.m_constraint_center.x-this.m_objects[i][1];
-    //   const dist = Math.sqrt(v_x*v_x+v_y*v_y);
-    //   if(dist>this.m_constraint_radius-this.m_objects[i][6]){
-    //     const n_x = v_x/dist;
-    //     const n_y = v_y/dist;
-    //     this.m_objects[i][0]=this.m_constraint_center.x-n_x*(this.m_constraint_radius-this.m_objects[i][6]);
-    //     this.m_objects[i][1]=this.m_constraint_center.y-n_y*(this.m_constraint_radius-this.m_objects[i][6]);
-    //   }
+      .setOutput([2, gpu_depth])
   }
 
   addObject(position, radius) {
-    // const object = new VerletObject(position, radius);
-    // this.position = position;
-    // this.position_last = position;
-    // this.acceleration = new p5.Vector(0, 0);
-    // this.radius = radius ? radius : 10;
-    // this.color = { r: 255, g: 255, b: 255 };
     const object = Array(
       position.x,
       position.y,
@@ -149,39 +134,34 @@ class Solver {
   }
 
   checkCollisions(dt) {
-    // const object_pairs = [];
-    // const response_coef = 0.75;
-    // const objects_count = this.m_objects.length;
-    // // Iterate on all objects
-    // for (let i = 0; i < objects_count; ++i) {
-    //   const object_1 = this.m_objects[i];
-    //   // Iterate on object involved in new collision pairs
-    //   for (let k = i + 1; k < objects_count; ++k) {
-    //     const object_2 = this.m_objects[k];
-    //     const pair = {
-    //       x1: object_1.position.x,
-    //       y1: object_1.position.y,
-    //       x2: object_2.position.x,
-    //       y2: object_2.position.y,
-    //     };
-    //     const v = p5.Vector.sub(object_1.position, object_2.position);
-    //     const dist2 = v.x * v.x + v.y * v.y;
-    //     const min_dist = object_1.radius + object_2.radius;
-    //     // Check overlapping
-    //     if (dist2 < min_dist * min_dist) {
-    //       const dist = Math.sqrt(dist2);
-    //       const n = p5.Vector.div(v, dist);
-    //       const mass_ratio_1 =
-    //         object_1.radius / (object_1.radius + object_2.radius);
-    //       const mass_ratio_2 =
-    //         object_2.radius / (object_1.radius + object_2.radius);
-    //       const delta = 0.5 * response_coef * (dist - min_dist);
-    //       // Update positions
-    //       object_1.position.sub(p5.Vector.mult(n, mass_ratio_2 * delta));
-    //       object_2.position.add(p5.Vector.mult(n, mass_ratio_1 * delta));
-    //     }
-    //   }
-    // }
+    const response_coef = 0.75;
+    const objects_count = this.m_objects.length;
+    // Iterate on all objects
+    for (let i = 0; i < objects_count; ++i) {
+      const object_1 = this.m_objects[i];
+      // Iterate on object involved in new collision pairs
+      for (let k = i + 1; k < objects_count; ++k) {
+        const object_2 = this.m_objects[k];
+        const v_x = object_1[0] - object_2[0];
+        const v_y = object_1[1] - object_2[1];
+        const dist2 = v_x * v_x + v_y * v_y;
+        const min_dist = object_1[6] + object_2[6];
+        // Check overlapping
+        if (dist2 < min_dist * min_dist) {
+          const dist = Math.sqrt(dist2);
+          const n_x = v_x / dist;
+          const n_y = v_y / dist;
+          const mass_ratio_1 = object_1[6] / min_dist;
+          const mass_ratio_2 = object_2[6] / min_dist;
+          const delta = 0.5 * response_coef * (dist - min_dist);
+          // Update positions
+          object_1[0] -= n_x * mass_ratio_2 * delta;
+          object_1[1] -= n_y * mass_ratio_2 * delta;
+          object_2[0] += n_x * mass_ratio_1 * delta;
+          object_2[1] += n_y * mass_ratio_1 * delta;
+        }
+      }
+    }
   }
 
   applyConstraint() {
@@ -200,24 +180,14 @@ class Solver {
           n_y * (this.m_constraint_radius - this.m_objects[i][6]);
       }
     }
-    // this.m_objects.map((obj) => {
-    //   const v = p5.Vector.sub(this.m_constraint_center, obj.position);
-    //   const dist = Math.sqrt(v.x * v.x + v.y * v.y);
-    //   if (dist > this.m_constraint_radius - obj.radius) {
-    //     const n = p5.Vector.div(v, dist);
-    //     obj.position = p5.Vector.sub(
-    //       this.m_constraint_center,
-    //       p5.Vector.mult(n, this.m_constraint_radius - obj.radius)
-    //     );
-    //   }
-    // });
+
   }
 
   updateObjects(dt) {
     var results;
     var count;
-    for (let i = 0; i < this.m_objects.length; i += 1000) {
-      count = Math.min(1000, this.m_objects.length - i);
+    for (let i = 0; i < this.m_objects.length; i += gpu_depth) {
+      count = Math.min(gpu_depth, this.m_objects.length - i);
       const slice = this.m_objects.slice(i, i + count);
       results = this.m_update_kernel(
         slice,

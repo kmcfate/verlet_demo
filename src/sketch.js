@@ -20,7 +20,7 @@ const sketch = (canvas) => {
   const object_min_radius = 1.0;
   const object_max_radius = 20.0;
   const substep_count = 3;
-  let max_objects_count = 1;
+  let max_objects_count = 500;
   const max_angle = 1.0;
   let last_object_time = 0;
 
