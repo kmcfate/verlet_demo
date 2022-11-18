@@ -28,15 +28,15 @@ class Solver {
           const v_x = center_x - objects[this.thread.y][0];
           const v_y = center_y - objects[this.thread.y][1];
           const dist = Math.sqrt(v_x * v_x + v_y * v_y);
-          if (dist - 1 > radius - objects[this.thread.y][6]) {
+          if (dist > radius - objects[this.thread.y][6]) {
             const n_x = v_x / dist;
             const n_y = v_y / dist;
             if (this.thread.x % 2 != 0) {
-              new_position =
-                center_y - n_y * (radius - objects[this.thread.y][6]);
+              new_position +=
+                n_y * (dist - (radius - objects[this.thread.y][6]));
             } else {
-              new_position =
-                center_x - n_x * (radius - objects[this.thread.y][6]);
+              new_position +=
+                n_x * (dist - (radius - objects[this.thread.y][6]));
             }
           }
 
@@ -74,7 +74,7 @@ class Solver {
     for (let i = 0; i < this.m_sub_steps; i++) {
       // this.applyGravity();
       this.checkCollisions(step_dt);
-      this.applyConstraint();
+      // this.applyConstraint();
       this.updateObjects(step_dt);
     }
   }
