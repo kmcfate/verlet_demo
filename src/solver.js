@@ -22,13 +22,13 @@ class Solver {
             objects[this.thread.y][position_last_index];
           new_position =
             objects[this.thread.y][position_index] +
-            displacement +
+            displacement *0.999+ // Drag
             1000 * position_index * dt * dt; // Hard coded acceleration for gravity
 
           const v_x = center_x - objects[this.thread.y][0];
           const v_y = center_y - objects[this.thread.y][1];
           const dist = Math.sqrt(v_x * v_x + v_y * v_y);
-          if (dist > radius - objects[this.thread.y][6]) {
+          if (dist >= radius - objects[this.thread.y][6]) {
             const n_x = v_x / dist;
             const n_y = v_y / dist;
             if (this.thread.x % 2 != 0) {
@@ -39,6 +39,7 @@ class Solver {
                 n_x * (dist - (radius - objects[this.thread.y][6]));
             }
           }
+// Check for collisions
 
           return new_position;
         },
