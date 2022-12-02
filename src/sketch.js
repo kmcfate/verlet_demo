@@ -63,7 +63,7 @@ const sketch = (canvas) => {
     ) {
       last_object_time = this_time;
       const object = solver.addObject(
-        object_spawn_position,
+        object_spawn_position.copy(),
         canvas.random(object_min_radius, object_max_radius)
       );
       const t = solver.getTime();
