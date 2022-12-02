@@ -77,8 +77,6 @@ class Solver {
   }
 
   checkCollisions(dt) {
-    const object_pairs = [];
-
     const response_coef = 0.75;
     const objects_count = this.m_objects.length;
     // Iterate on all objects
@@ -87,13 +85,6 @@ class Solver {
       // Iterate on object involved in new collision pairs
       for (let k = i + 1; k < objects_count; ++k) {
         const object_2 = this.m_objects[k];
-
-        const pair = {
-          x1: object_1.position.x,
-          y1: object_1.position.y,
-          x2: object_2.position.x,
-          y2: object_2.position.y,
-        };
 
         const v = p5.Vector.sub(object_1.position, object_2.position);
         const dist2 = v.x * v.x + v.y * v.y;
@@ -119,11 +110,11 @@ class Solver {
     this.m_objects.map((obj) => {
       const v = p5.Vector.sub(this.m_constraint_center, obj.position);
       const dist = Math.sqrt(v.x * v.x + v.y * v.y);
-      if (dist > this.m_constraint_radius - obj.radius) {
-        const n = p5.Vector.div(v, dist);
+      const max_dist = this.m_constraint_radius - obj.radius;
+      if (dist > max_dist) {
         obj.position = p5.Vector.sub(
           this.m_constraint_center,
-          p5.Vector.mult(n, this.m_constraint_radius - obj.radius)
+          p5.Vector.mult(p5.Vector.div(v, dist), max_dist)
         );
       }
     });

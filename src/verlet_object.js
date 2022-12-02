@@ -2,7 +2,7 @@ class VerletObject {
   
   constructor(position, radius) {
     this.position = position;
-    this.position_last = position;
+    this.position_last = position.copy();
     this.acceleration = new p5.Vector(0, 0);
     this.radius = radius ? radius : 10;
     this.color = { r: 255, g: 255, b: 255 };
@@ -10,11 +10,10 @@ class VerletObject {
 
   update(dt) {
     const displacement = p5.Vector.sub(this.position, this.position_last);
-    this.position_last = new p5.Vector(this.position.x, this.position.y);
-    const acceleration = this.acceleration;
-    acceleration.mult(dt * dt);
-    this.position.add(p5.Vector.add(displacement, acceleration)); // Type problem on mult
-    this.acceleration = new p5.Vector(0, 0);
+    this.position_last = this.position.copy();
+    this.position.add(p5.Vector.add(displacement, this.acceleration.mult(dt*dt))); // Type problem on mult
+    this.acceleration.x=0;
+    this.acceleration.y=0;
   }
 
   accelerate(a) {
