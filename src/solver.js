@@ -1,4 +1,4 @@
-const gpu = new GPU();
+// const gpu = new GPU();
 class Solver {
   constructor() {
     this.m_sub_steps = 1;
