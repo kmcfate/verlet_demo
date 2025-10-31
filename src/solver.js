@@ -9,7 +9,8 @@ class Solver {
     this.m_objects = [];
     this.m_time = 0;
     this.m_frame_dt = 0;
-    this.m_gpu = new GPU();
+    const GPUJS = window.GPU && window.GPU.GPU ? window.GPU.GPU : window.GPU;
+    this.m_gpu = GPUJS ? new GPUJS() : null;
     this.m_update_kernel = this.m_gpu
       .createKernel(
         function (objects, count, dt, center_x, center_y, radius) {
